@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Hacker Chart</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="static/css/bootstrap.css" rel="stylesheet" />
+    <link href="static/css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="static/stylesheethackerchart.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="static/jquery.countTo.js">
+        //https://github.com/mhuggins/jquery-countTo
+    </script>
+    <script src="ejs_production.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.nav-button').click(function() {
+                $(this).addClass('active').siblings().removeClass('active');
+            });
+            $('.filter-button').click(function() {
+                $('.filters-container').toggleClass("active");
+            });
+            $('.friends-tools-row').click(function() {
+                $(this).toggleClass("active");
+            });
+
+            $(".language-filter").click(function() {
+                $(this).toggleClass("deleted");
+            });
+
+            $(".dropdown-toggle").click(function() {
+                $(this.parent).toggleClass("open");
+            })
+
+            $(".search-bar").keypress(function() {
+                $(this).addClass("open");
+
+                var pos = $(this).position();
+                var height = 10 + $(this).height();
+                $(".dropdown-tools-menu").css({
+                    top: (pos.top + height) + "px",
+                }).show();
+                //Bring results from API
+            })
+
+            $(".search-bar").hover(function() {
+                $(this).removeClass("open");
+            })
+
+            $(".tool-list-item.add-tool").click(function() {
+                $("html").find(".add-new-tool-popup").addClass("open");
+            })
+
+            $(".close-button").click(function() {
+                $("html").find(".add-new-tool-popup").removeClass("open");
+            })
+
+            $(".add-new-tool-button").click(function() {
+                if ($(this).hasClass("enabled")) {
+                    $("html").find(".add-new-tool-popup").removeClass("open");
+                    //TODO SEND TO THE API and ADD LOADING SPINNER
+                }
+            })
+
+            $(".checkbox").click(function() {
+                $(this).toggleClass("enabled");
+
+                var aCheckboxIsEnabled = false;
+                $('.checkbox').each(function(i, obj) {
+                    if ($(this).hasClass("enabled")) {
+                        aCheckboxIsEnabled = true;
+                    }
+                });
+                if (aCheckboxIsEnabled) {
+                    $(".add-new-tool-button").addClass("enabled");
+                } else {
+                    $(".add-new-tool-button").removeClass("enabled");
+                }
+            });
+
+            $('.delete-tool-button').click(function() {
+                var toolRow = $(this).parent();
+                /*
+                var toolCount = parseInt(toolRow.find('.your-tool-user-count').text().replace(",", ""));
+
+                console.log(toolCount);
+                $(toolRow.find('.your-tool-user-count')).countTo({
+                    from: toolCount,
+                    to: toolCount - 1,
+                    speed: 50,
+                    refreshInterval: 50,
+                    formatter: function(value, options) {
+                        return value.toFixed(options.decimals).replace(/\B(?=(?:\d{3})+(?!\d))/g, ',');
+                    },
+                    onComplete: function(value) {
+                        console.debug(this);
+                    }
+                });*/
+                toolRow.addClass('deleted');
+                setTimeout(function() {
+                    toolRow.css("display", "none");
+                }, 000);
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '141575826364573',
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v2.8'
+            });
+            FB.AppEvents.logPageView();
+        };
+
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+
+        function checkLoginState() {
+            FB.getLoginStatus(function(response) {
+                showLoginButton(response);
+            });
+        }
+
+        function showLoginButton() {
+            var loginButton = $("html").find(".fb-login-button");
+            loginButton.hide();
+            console.log("TEST THIS WHEN YOU HAVE DOMAIN CONNECTED TO SERVER");
+        }
+    </script>
+    <nav class="navbar-hc">
+        <div class="navbar-brand-hc" href="#">
+            <div class="navbar-separator"></div>
+            <img src="static/hclogo.png" id="navbarLogo">
+        </div>
+        <div class="nav-buttons-container">
+            <div class="nav-button active">All Time</div>
+            <div class="nav-button">Weekly <img src="static/fire_emoji.png" class="emoji"></div>
+            <div class="nav-button">Friends <img src="static/smile_emoji.png" class="emoji"></div>
+        </div>
+        <div class="fb-login-button account-button" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="true"></div>
+        <div class="dropdown pull-right account-button">
+            <div class="account-separator"></div>
+            <div class="dropdown-toggle" data-toggle="dropdown"><img src="static/account_icon.png"></div>
+            <ul class="dropdown-menu">
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </div>
+        <div class="navbar-separator"></div>
+        <div class="filters-container">
+            <div class="dropdown pull-right" style="height:35px; margin-right:10px;">
+                <div class="dropdown-toggle add-language-button" data-toggle="dropdown">+</div>
+                <ul class="dropdown-menu">
+                    <li><a href="#">C++</a></li>
+                    <li><a href="#">iOS</a></li>
+                </ul>
+            </div>
+            <div class="language-filter">
+                C++
+                <img class="language-delete-button" src="static/language-delete-x.png">
+            </div>
+            <div class="language-filter">
+                iOS
+                <img class="language-delete-button" src="static/language-delete-x.png">
+            </div>
+            <div class="filter-separator"></div>
+            <div class="filter-button">
+                <img class="unfiltered" src='static/unfiltered_icon.png'>
+            </div>
+        </div>
+    </nav>
+    <div class="charts-table">
+        <div class="tool-row">
+            <div class="tool-col-main-content">
+                <h1 class="tool-rank-num">1</h1>
+                <img src="static/fb_icon.png" class="tool-icon">
+                <div class="tool-rank-text">
+                    <div class="tool-name-and-count">
+                        <h3 class="tool-name">FacebookSDK</h3>
+                        <div class="tool-user-count">1,044</div>
+                    </div>
+                </div>
+                <div class="tool-row-seperator"></div>
+            </div>
+            <div class="tool-days-at-rank">2d</div>
+        </div>
+        <div class="tool-row">
+            <div class="tool-col-main-content">
+                <h1 class="tool-rank-num">1</h1>
+                <img src="static/fb_icon.png" class="tool-icon">
+                <div class="tool-rank-text">
+                    <div class="tool-name-and-count">
+                        <div class="tool-name">FacebookSDKasd<br> asdasdasdas<br>d asdasd</div>
+                        <div class="tool-user-count">1,044</div>
+                    </div>
+                    <div class="tool-languages-container">
+                        <div class="tool-language"> iOS </div>
+                        <div class="tool-language"> Android </div>
+                    </div>
+                </div>
+                <div class="tool-row-seperator"></div>
+            </div>
+            <div class="tool-weekly-user-increase-container">
+                <img src="static/uparrow.png" class="tool-weekly-arrow">
+                <div class="tool-weekly-text">23</div>
+            </div>
+        </div>
+        <div class="tool-row">
+            <div class="tool-col-main-content">
+                <h1 class="tool-rank-num">1</h1>
+                <img src="static/fb_icon.png" class="tool-icon">
+                <div class="tool-rank-text">
+                    <div class="tool-name-and-count">
+                        <div class="tool-name">FacebookSDKasdawdawdawdawdawdawdwadwadaawdwadawawdawdwada</div>
+                        <div class="tool-user-count">1,044</div>
+                    </div>
+                    <div class="tool-languages-container">
+                        <div class="tool-language"> iOS </div>
+                        <div class="tool-language"> Android </div>
+                    </div>
+                </div>
+                <div class="tool-row-seperator"></div>
+            </div>
+            <div class="dropdown pull-right tool-friends-circles-container" style="margin-right:0px;">
+                <div class="dropdown-toggle" data-toggle="dropdown">
+                    <img src="static/exprofilepic.png" class="tool-friends-circle">
+                    <img src="static/exprofilepic.png" class="tool-friends-circle">
+                    <!--<div class="tool-friends-circle-extra">+ 3</div>-->
+                    <!--<img src="exprofilepic.png" class="tool-friends-circle">-->
+                </div>
+                <ul class="dropdown-menu tool-friends-circles-dropdown">
+                    <li><a href="# ">Declan</a></li>
+                    <li><a href="# ">Declan 2</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="right-side-bar">
+        <div class="add-new-tool-popup">
+            <div class="close-button"><img src="static/remove_tool.png"></div>
+            <div class="title">What do you use FacebookSDK for?<br>(check all that apply)</div>
+            <div class="lang-checkboxes">
+                <div class="checkbox">
+                    <img src="static/checkmark.png">
+                    <div class="checkbox-title">iOS</div>
+                </div>
+                <div class="checkbox">
+                    <img src="static/checkmark.png">
+                    <div class="checkbox-title">Java</div>
+                </div>
+            </div>
+            <div class="add-new-tool-button">Add</div>
+        </div>
+        <div class="your-tools">
+            <div class="right-side-bar-title"> Your Tools </div>
+            <div class="subscribe-button"> Subscribe </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Add New Tool" class="search-text-field">
+                <img src="static/search-icon.png" id="search-icon">
+                <ul class="dropdown-tools-menu">
+                    <div class="tool-list-item">
+                        <img src="static/fb_icon.png"> Declan
+                        <div class="tool-user-count">1,044</div>
+                    </div>
+                    <div class="tool-list-item"><img src="static/fb_icon.png">Declan
+                        <div class="tool-user-count">1,044</div>
+                    </div>
+                    <div class="tool-list-item add-tool">
+                        Can't Find Your Tool?<br>+ Add it to the Chart
+                    </div>
+                </ul>
+            </div>
+            <div class="row your-tools-col">
+                <div class="your-tools-row">
+                    <h1 class="your-tool-rank-num">1</h1>
+                    <img src="static/fb_icon.png" class="your-tool-icon">
+                    <h3 class="your-tool-rank-name">FacebookSDKasd<br> asdasdasdas<br>d asdasd</h3>
+                    <div class="your-tool-user-count">1,044</div>
+                    <div class="delete-tool-button"><img src="static/remove_tool.png" class="delete-tool-icon"></div>
+                </div>
+                <div class="your-tools-row">
+                    <h1 class="your-tool-rank-num">1</h1>
+                    <img src="static/fb_icon.png" class="your-tool-icon">
+                    <h3 class="your-tool-rank-name">CocoaPod</h3>
+                    <div class="your-tool-user-count">1,044</div>
+                    <div class="delete-tool-button"><img src="static/remove_tool.png" class="delete-tool-icon"></div>
+                </div>
+            </div>
+        </div>
+        <div class="friends-tools">
+            <div class="right-side-bar-title"> Friends
+                <div id="friend-count">10</div>
+            </div>
+            <div class="row friends-tools-col">
+                <div class="friends-tools-row">
+                    <div class="friends-row-user-cell">
+                        <img src="static/exprofilepic.png" class="friend-profile-pic">
+                        <div class="friend-name">Declan Hopkins</div>
+                        <img src="static/darkarrow.png" class="friend-drop-arrow"></img>
+                        <div class="friend-seperator"></div>
+                    </div>
+                    <!--  EXPANDED FRIEND TOOLS -->
+                    <div class="row your-tools-col friend-tools-col-expanded">
+                        <div class="friend-seperator"></div>
+                        <div class="your-tools-row">
+                            <h1 class="your-tool-rank-num">1</h1>
+                            <img src="static/fb_icon.png" class="your-tool-icon">
+                            <h3 class="your-tool-rank-name">FacebookSDKasd<br> asdasdasdas<br>d asdasd</h3>
+                            <div class="your-tool-user-count">1,044</div>
+                        </div>
+                        <div class="your-tools-row">
+                            <h1 class="your-tool-rank-num">1</h1>
+                            <img src="static/fb_icon.png" class="your-tool-icon">
+                            <h3 class="your-tool-rank-name">CocoaPod</h3>
+                            <div class="your-tool-user-count">1,044</div>
+                        </div>
+                    </div>
+                    <!---->
+                </div>
+                <div class="friends-tools-row">
+                    <div class="friends-row-user-cell">
+                        <img src="static/exprofilepic.png" class="friend-profile-pic">
+                        <div class="friend-name">Declan Hopkins</div>
+                        <img src="static/darkarrow.png" class="friend-drop-arrow"></img>
+                        <div class="friend-seperator"></div>
+                    </div>
+                </div>
+                <div class="friends-tools-row">
+                    <div class="friends-row-user-cell">
+                        <img src="static/exprofilepic.png" class="friend-profile-pic">
+                        <div class="friend-name">Declan Hopkinsawdawdwadwadwadwadaww</div>
+                        <img src="static/darkarrow.png" class="friend-drop-arrow">
+                        <div class="friend-seperator"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+</body>
+
+</html>
