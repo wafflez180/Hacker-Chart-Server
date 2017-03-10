@@ -110,38 +110,6 @@
 </head>
 
 <body>
-    <script>
-        window.fbAsyncInit = function() {
-            FB.init({
-                appId      : '141575826364573',
-                cookie     : true,
-                xfbml      : true,
-                version    : 'v2.8'
-            });
-            FB.AppEvents.logPageView();
-        };
-
-        (function(d, s, id){
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
-            js = d.createElement(s); js.id = id;
-            js.src = "//connect.facebook.net/en_US/sdk.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-
-
-        function checkLoginState() {
-            FB.getLoginStatus(function(response) {
-                showLoginButton(response);
-            });
-        }
-
-        function showLoginButton() {
-            var loginButton = $("html").find(".fb-login-button");
-            loginButton.hide();
-            console.log("TEST THIS WHEN YOU HAVE DOMAIN CONNECTED TO SERVER");
-        }
-    </script>
     <nav class="navbar-hc">
         <div class="navbar-brand-hc" href="#">
             <div class="navbar-separator"></div>
@@ -152,7 +120,7 @@
             <div class="nav-button">Weekly <img src="static/fire_emoji.png" class="emoji"></div>
             <div class="nav-button">Friends <img src="static/smile_emoji.png" class="emoji"></div>
         </div>
-        <div class="fb-login-button account-button" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="true"></div>
+        <a href="/auth/facebook" class="fb-login-button account-button">Login</a>
         <div class="dropdown pull-right account-button">
             <div class="account-separator"></div>
             <div class="dropdown-toggle" data-toggle="dropdown"><img src="static/account_icon.png"></div>
