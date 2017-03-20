@@ -30,6 +30,10 @@
             $('.friends-tools-row').click(function() {
                 $(this).toggleClass("active");
             });
+            $('.tool-row').click(function() {
+                var toolName = $(this).find('.tool-name').text();
+                window.open('https://www.google.com/search?q='+toolName, toolName);
+            });
 
             $(".language-filter").click(function() {
                 $(this).toggleClass("deleted");
@@ -39,7 +43,7 @@
                 $(this.parent).toggleClass("open");
             })
 
-            $(".search-bar").keypress(function() {
+            $(".search-bar").keyup(function() {
                 $(this).addClass("open");
 
                 var pos = $(this).position();
@@ -47,8 +51,17 @@
                 $(".dropdown-tools-menu").css({
                     top: (pos.top + height) + "px",
                 }).show();
+
                 //Bring results from API
             })
+
+            $(".search-text-field").keyup(function() {
+                var textFieldInput = $(this).val();
+
+                var popup = $("html").find(".right-side-bar").find(".title");
+                popup.text("What do you use " + textFieldInput + " for? \n (check all that apply)");
+            })
+
 
             $(".search-bar").hover(function() {
                 $(this).removeClass("open");
@@ -64,8 +77,20 @@
 
             $(".add-new-tool-button").click(function() {
                 if ($(this).hasClass("enabled")) {
-                    $("html").find(".add-new-tool-popup").removeClass("open");
+                    var newToolName =  $("html").find(".search-text-field").val();
                     //TODO SEND TO THE API and ADD LOADING SPINNER
+
+                    var newToolLanguages = [];
+                    $('.checkbox.enabled').each(function(i, obj) {
+                        newToolLanguages.push($(obj).find(".checkbox-title").text());
+                    });
+                    //AJAX
+                    var parameters = { toolName: newToolName, toolLanguages: newToolLanguages};
+                    $.get( '/add-new-tool',parameters, function(data) {
+
+                    });
+
+                    $("html").find(".add-new-tool-popup").removeClass("open");
                 }
             })
 
@@ -113,6 +138,14 @@
 </head>
 
 <body>
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1000967543264812";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
     <nav class="navbar-hc">
         <div class="navbar-brand-hc" href="#">
             <div class="navbar-separator"></div>
@@ -123,40 +156,40 @@
             <div class="nav-button">Weekly <img src="static/fire_emoji.png" class="emoji"></div>
             <div class="nav-button">Friends <img src="static/smile_emoji.png" class="emoji"></div>
         </div>
-        <a href="/auth/facebook" class="fb-login-button account-button">
-            <% if (typeof this.user != 'undefined'){ %>
-                <%= user.facebook.name %>
-            <% console.log(user.name) %>
-            <% console.log('bitch') %>
-            <% }else{ %>
-                Login
-            <% } %>
-        </a>
-        <div class="dropdown pull-right account-button">
-            <div class="account-separator"></div>
-            <div class="dropdown-toggle" data-toggle="dropdown"><img src="static/account_icon.png"></div>
-            <ul class="dropdown-menu">
-                <li><a href="#">Settings</a></li>
-                <li><a href="#">Logout</a></li>
-            </ul>
-        </div>
+        <% if (loggedIn) { %>
+            <div class="dropdown pull-right account-button">
+                <div class="account-separator"></div>
+                <div class="dropdown-toggle" data-toggle="dropdown"><img src="static/account_icon.png"></div>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        <% }else{ %>
+            <a href="/auth/facebook" class="fb-login-button account-button"></a>
+        <% } %>
         <div class="navbar-separator"></div>
         <div class="filters-container">
             <div class="dropdown pull-right" style="height:35px; margin-right:10px;">
                 <div class="dropdown-toggle add-language-button" data-toggle="dropdown">+</div>
                 <ul class="dropdown-menu">
-                    <li><a href="#">C++</a></li>
-                    <li><a href="#">iOS</a></li>
+                    <%
+                    if ( filters ){
+                        for(var i=0; i < Object.keys(filters).length; i++) { %>
+                            <li><a href="#"><%= filters[i] %></a></li>
+                    <% }
+                    }%>
                 </ul>
             </div>
-            <div class="language-filter">
-                C++
-                <img class="language-delete-button" src="static/language-delete-x.png">
-            </div>
-            <div class="language-filter">
-                iOS
-                <img class="language-delete-button" src="static/language-delete-x.png">
-            </div>
+            <%
+            if ( filters ){
+                for(var i=0; i < Object.keys(filters).length; i++) { %>
+                    <div class="language-filter">
+                        <%= filters[i] %>
+                        <img class="language-delete-button" src="static/language-delete-x.png">
+                    </div>
+            <%  }
+            }%>
             <div class="filter-separator"></div>
             <div class="filter-button">
                 <img class="unfiltered" src='static/unfiltered_icon.png'>
@@ -164,7 +197,35 @@
         </div>
     </nav>
     <div class="charts-table">
-        <div class="tool-row">
+        <%
+        if ( rankedTools ){
+        for(var i=0; i < Object.keys(rankedTools).length; i++) { %>
+            <div class="tool-row">
+                <div class="tool-col-main-content">
+                    <h1 class="tool-rank-num"><%= rankedTools[i].rank %></h1>
+                    <%
+                    if ( rankedTools[i].iconURL ){%>
+                        <img src="<%= rankedTools[i].iconURL %>" class="tool-icon">
+                    <%}%>
+                    <div class="tool-rank-text">
+                        <div class="tool-name-and-count">
+                            <h3 class="tool-name"><%= rankedTools[i].name %></h3>
+                            <div class="tool-user-count"><%= rankedTools[i].userCount %></div>
+                        </div>
+                        <%if ( rankedTools[i].languages ){%>
+                            <div class="tool-languages-container">
+                                <%for(var x=0; x < rankedTools[i].languages.length; x++) { %>
+                                    <div class="tool-language"> <%= rankedTools[i].languages[x] %> </div>
+                                <%}%>
+                            </div>
+                        <%}%>
+                    </div>
+                    <div class="tool-row-seperator"></div>
+                </div>
+            </div>
+        <%  }
+        }%>
+         <!-- <div class="tool-row">
             <div class="tool-col-main-content">
                 <h1 class="tool-rank-num">1</h1>
                 <img src="static/fb_icon.png" class="tool-icon">
@@ -220,30 +281,30 @@
                     <img src="static/exprofilepic.png" class="tool-friends-circle">
                     <img src="static/exprofilepic.png" class="tool-friends-circle">
                     <!--<div class="tool-friends-circle-extra">+ 3</div>-->
-                    <!--<img src="exprofilepic.png" class="tool-friends-circle">-->
+                    <!--<img src="exprofilepic.png" class="tool-friends-circle">
                 </div>
                 <ul class="dropdown-menu tool-friends-circles-dropdown">
                     <li><a href="# ">Declan</a></li>
                     <li><a href="# ">Declan 2</a></li>
                 </ul>
             </div>
-        </div>
+        </div>-->
     </div>
     <div class="right-side-bar">
         <div class="add-new-tool-popup">
-            <div class="close-button"><img src="static/remove_tool.png"></div>
-            <div class="title">What do you use FacebookSDK for?<br>(check all that apply)</div>
-            <div class="lang-checkboxes">
-                <div class="checkbox">
-                    <img src="static/checkmark.png">
-                    <div class="checkbox-title">iOS</div>
+                <div class="close-button"><img src="static/remove_tool.png"></div>
+                <div class="title">What do you use <%= textFieldInput %> for?<br>(check all that apply)</div>
+                <div class="lang-checkboxes">
+                    <div class="checkbox">
+                        <img src="static/checkmark.png">
+                        <div class="checkbox-title">iOS</div>
+                    </div>
+                    <div class="checkbox">
+                        <img src="static/checkmark.png">
+                        <div class="checkbox-title">Java</div>
+                    </div>
                 </div>
-                <div class="checkbox">
-                    <img src="static/checkmark.png">
-                    <div class="checkbox-title">Java</div>
-                </div>
-            </div>
-            <div class="add-new-tool-button">Add</div>
+                <div class="add-new-tool-button"> Add </div>
         </div>
         <div class="your-tools">
             <div class="right-side-bar-title"> Your Tools </div>
@@ -265,6 +326,21 @@
                 </ul>
             </div>
             <div class="row your-tools-col">
+                <%
+                if ( tools ){
+                for(var i=0; i < Object.keys(tools).length; i++) { %>
+                    <div class="your-tools-row">
+                        <h1 class="your-tool-rank-num"><%= tools[i].rank %></h1>
+                        <% if( tools[i].iconURL && tools[i].iconURL.length !== ''){%>
+                            <img src="<%= tools[i].iconURL %>" class="your-tool-icon">
+                        <%}%>
+                        <h3 class="your-tool-rank-name"><%= tools[i].name %></h3>
+                        <div class="your-tool-user-count"><%= tools[i].userCount %></div>
+                        <div class="delete-tool-button"><img src="static/remove_tool.png" class="delete-tool-icon"></div>
+                    </div>
+                <%  }
+                }%>
+                <!--
                 <div class="your-tools-row">
                     <h1 class="your-tool-rank-num">1</h1>
                     <img src="static/fb_icon.png" class="your-tool-icon">
@@ -278,7 +354,7 @@
                     <h3 class="your-tool-rank-name">CocoaPod</h3>
                     <div class="your-tool-user-count">1,044</div>
                     <div class="delete-tool-button"><img src="static/remove_tool.png" class="delete-tool-icon"></div>
-                </div>
+                </div>-->
             </div>
         </div>
         <div class="friends-tools">

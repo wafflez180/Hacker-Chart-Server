@@ -3,6 +3,9 @@
  */
 // app/routes.js
 const path = require('path');
+const Tool = require('../app/models/tool');
+const User = require('../app/models/user');
+var collection = require("mongoose");
 
 module.exports = function(app, passport) {
 
@@ -13,6 +16,46 @@ module.exports = function(app, passport) {
     app.get('/', function(req, res) {
         res.render('index.ejs'); // load the index.ejs file
     });
+
+    app.get('/add-new-tool', function(req, res, done){
+
+        // asynchronous
+        process.nextTick(function() {
+            Tool.findOne({ 'name' : req.query.toolName }, function(err, tool) {
+                // if there is an error, stop everything and return that
+                // ie an error connecting to the database
+                if (err)
+                    return done(err);
+
+                // if the user is found, then log them in
+                if (tool) {
+                    return done(null, tool); // tool found, return that tool
+                } else {
+                    // if there is no tool found with that tool name, create them
+                    var newTool = new Tool();
+
+                    newTool.name = req.query.toolName;
+                    newTool.userCount = 1;
+                    newTool.languages = req.query.toolLanguages;
+                    console.log(newTool);
+
+                    User.update({_id:req.user._id}, {$push: {
+                        'local.tools': newTool
+                    }}, function (err) {
+
+                    });
+
+                    newTool.save(function (err) {if (err)
+                        throw err;
+
+                        // if successful, return the new tool
+                        return done(null, tool);
+                    });
+                }
+            });
+        });
+    });
+
 
     // =====================================
     // LOGIN ===============================
@@ -68,13 +111,13 @@ module.exports = function(app, passport) {
     // handle the callback after facebook has authenticated the user
     app.get('/auth/facebook/callback',
         passport.authenticate('facebook', {
-            successRedirect : '/profile',
+            successRedirect : '/',
             failureRedirect : '/'
         }));
 
     // route for logging out
     app.get('/logout', function(req, res) {
-        console.log('user is logged out')
+        console.log('User logged out');
         req.logout();
         res.redirect('/');
     });
@@ -86,10 +129,10 @@ function isLoggedIn(req, res, next) {
 
     // if user is authenticated in the session, carry on
     if (req.isAuthenticated()) {
-        console.log('user is authenticated')
+        console.log('User is authenticated')
         return next();
     }
-    console.log('user is logged in already')
+    console.log('User is already logged in')
 
     // if they aren't redirect them to the home page
     res.redirect('/');

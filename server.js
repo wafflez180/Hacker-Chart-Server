@@ -12,6 +12,10 @@ const flash    = require('connect-flash');
 const configDB = require('./config/database.js');
 const app = express();
 
+// load up the user model
+var User       = require('./app/models/user');
+var Tool       = require('./app/models/tool');
+
 app.use('/static', express.static('static'));
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -29,16 +33,58 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', function (req, res) {
-    var test = "test"
+    //Rank all tools
+    Tool.find({}).sort({userCount: -1}).exec(
+        function(err, tools) {
+            sortedTools = tools;
+            for(var i = 0; i < sortedTools.length; i++){
+                Tool.update({_id:tools[i]._id}, {$set: {
+                    'rank': i+1
+                }}, function (err) {
 
-    res.render(path.resolve(__dirname, 'views/hackerchart.ejs'), {
-        test: test
-    });
+                });
+            }
+        }
+    );
+
+
+    //Get top 50 tools
+    var sortedTools = [];
+    Tool.find({}).sort({rank: 1}).limit(50).exec(
+        function(err, tools) {
+            sortedTools = tools;
+            if(req.user) {
+                console.log("User is logged in");
+
+                res.render(path.resolve(__dirname, 'views/hackerchart.ejs'), {
+                    loggedIn: true,
+                    filters: req.user.local.filters,
+                    tools: req.user.local.tools,
+                    friends: req.user.local.friends,
+                    textFieldInput : '',
+                    rankedTools : tools
+                });
+            }else {
+                console.log("User is not logged in");
+                res.render(path.resolve(__dirname, 'views/hackerchart.ejs'), {
+                    loggedIn: false,
+                    filters: null,
+                    tools: null,
+                    friends: null,
+                    textFieldInput : null,
+                    rankedTools : tools
+                });
+            }
+        }
+    );
+    console.log(sortedTools);
+
+
 
 })
 
 app.get('/welcome', function (req, res) {
-    res.sendFile(path.resolve(__dirname, 'views/welcome.ejs'))
+    res.render(path.resolve(__dirname, 'views/welcome.ejs'))
 })
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!')

@@ -4,6 +4,6 @@
 // config/database.js
 module.exports = {
 
-    'url' : 'localhost/users-test-test' // looks like mongodb://<user>:<pass>@mongo.onmodulus.net:27017/Mikha4ot
+    'url' : 'localhost/users-test' // looks like mongodb://<user>:<pass>@mongo.onmodulus.net:27017/Mikha4ot
 
 };

@@ -68,7 +68,15 @@ module.exports = function(passport) {
                         newUser.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName; // look at the passport user profile to see how names are returned
                         console.log(newUser.facebook.name);
                         newUser.facebook.email = profile.emails[0].value; // facebook can return multiple emails so we'll take the first
+                        newUser.facebook.photoURL    = profile.photos[0].value
+                        newUser.facebook.ageRangeMax    = profile._json.age_range.max;
+                        newUser.facebook.gender    = profile.gender;
                         // save our user to the database
+                        console.log('NEW PROPERTIES');
+                        console.log(newUser.facebook.photoURL);
+                        console.log(newUser.facebook.ageRangeMax);
+                        console.log(newUser.facebook.gender);
+
                         newUser.save(function(err) {
                             if (err)
                                 throw err;

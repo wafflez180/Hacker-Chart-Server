@@ -10,16 +10,23 @@ var bcrypt   = require('bcrypt-nodejs');
 var userSchema = mongoose.Schema({
 
     local            : {
-        email        : String,
-        password     : String,
+        filters      : {},
+        tools        : {},
+        friends      : {}
     },
     facebook         : {
         id           : String,
         token        : String,
         email        : String,
-        name         : String
+        name         : String,
+        photoURL     : String,
+        ageRangeMax  : String,
+        gender       : String
     }
 });
+
+//  photos: [ { value: 'https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/15977687_1576729562342021_2147369282711419588_n.jpg?oh=46d628b710a7a55a0cbbc5ec1b3280d6&oe=596A5AA2' } ],
+//friends":{"data":[{"name":"Declan Hopkins","id":"628763470642184"}]
 
 // checking if password is valid using bcrypt
 userSchema.methods.validPassword = function(password) {
