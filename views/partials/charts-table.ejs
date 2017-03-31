@@ -1,0 +1,94 @@
+<div class="charts-table">
+    <%
+    if ( rankedTools ){
+    for(var i=0; i < Object.keys(rankedTools).length; i++) { %>
+    <div class="tool-row">
+        <div class="tool-col-main-content">
+            <h1 class="tool-rank-num"><%= rankedTools[i].rank %></h1>
+            <%
+            if ( rankedTools[i].iconURL ){%>
+            <img src="<%= rankedTools[i].iconURL %>" class="tool-icon">
+            <%}%>
+            <div class="tool-rank-text">
+                <div class="tool-name-and-count">
+                    <h3 class="tool-name"><%= rankedTools[i].name %></h3>
+                    <div class="tool-user-count"><%= rankedTools[i].userCount %></div>
+                </div>
+                <%if ( rankedTools[i].languages ){%>
+                <div class="tool-languages-container">
+                    <%for(var x=0; x < rankedTools[i].languages.length; x++) { %>
+                    <div class="tool-language"> <%= rankedTools[i].languages[x] %> </div>
+                    <%}%>
+                </div>
+                <%}%>
+            </div>
+            <div class="tool-row-seperator"></div>
+        </div>
+    </div>
+    <%  }
+    }%>
+    <!-- <div class="tool-row">
+       <div class="tool-col-main-content">
+           <h1 class="tool-rank-num">1</h1>
+           <img src="static/fb_icon.png" class="tool-icon">
+           <div class="tool-rank-text">
+               <div class="tool-name-and-count">
+                   <h3 class="tool-name">FacebookSDK</h3>
+                   <div class="tool-user-count">1,044</div>
+               </div>
+           </div>
+           <div class="tool-row-seperator"></div>
+       </div>
+       <div class="tool-days-at-rank">2d</div>
+   </div>
+   <div class="tool-row">
+       <div class="tool-col-main-content">
+           <h1 class="tool-rank-num">1</h1>
+           <img src="static/fb_icon.png" class="tool-icon">
+           <div class="tool-rank-text">
+               <div class="tool-name-and-count">
+                   <div class="tool-name">FacebookSDKasd<br> asdasdasdas<br>d asdasd</div>
+                   <div class="tool-user-count">1,044</div>
+               </div>
+               <div class="tool-languages-container">
+                   <div class="tool-language"> iOS </div>
+                   <div class="tool-language"> Android </div>
+               </div>
+           </div>
+           <div class="tool-row-seperator"></div>
+       </div>
+       <div class="tool-weekly-user-increase-container">
+           <img src="static/uparrow.png" class="tool-weekly-arrow">
+           <div class="tool-weekly-text">23</div>
+       </div>
+   </div>
+   <div class="tool-row">
+       <div class="tool-col-main-content">
+           <h1 class="tool-rank-num">1</h1>
+           <img src="static/fb_icon.png" class="tool-icon">
+           <div class="tool-rank-text">
+               <div class="tool-name-and-count">
+                   <div class="tool-name">FacebookSDKasdawdawdawdawdawdawdwadwadaawdwadawawdawdwada</div>
+                   <div class="tool-user-count">1,044</div>
+               </div>
+               <div class="tool-languages-container">
+                   <div class="tool-language"> iOS </div>
+                   <div class="tool-language"> Android </div>
+               </div>
+           </div>
+           <div class="tool-row-seperator"></div>
+       </div>
+       <div class="dropdown pull-right tool-friends-circles-container" style="margin-right:0px;">
+           <div class="dropdown-toggle" data-toggle="dropdown">
+               <img src="static/exprofilepic.png" class="tool-friends-circle">
+               <img src="static/exprofilepic.png" class="tool-friends-circle">
+               <!--<div class="tool-friends-circle-extra">+ 3</div>-->
+    <!--<img src="exprofilepic.png" class="tool-friends-circle">
+</div>
+<ul class="dropdown-menu tool-friends-circles-dropdown">
+    <li><a href="# ">Declan</a></li>
+    <li><a href="# ">Declan 2</a></li>
+</ul>
+</div>
+</div>-->
+</div>

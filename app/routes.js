@@ -56,6 +56,47 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/delete-tool', function(req, res, done){
+
+        // asynchronous
+        process.nextTick(function() {
+            Tool.findOne({ 'name' : req.query.toolName }, function(err, tool) {
+                // if there is an error, stop everything and return that
+                // ie an error connecting to the database
+                if (err)
+                    return done(err);
+                // if the tool is found, then remove it from user and update count
+                if (tool) {
+                    var newUserTools = [];
+                    for(var i = 0; i < req.user.local.tools.length; i++){//Get new array without the delete tool
+                        if(req.user.local.tools[i].name !== req.query.toolName){
+                            newUserTools.push(req.user.local.tools[i]);
+                        }
+                    }
+
+                    console.log(newUserTools);
+
+                    User.update({_id:req.user._id}, {$set: {
+                        'local.tools': newUserTools
+                    }}, function (err) {
+
+                    });
+
+                    console.log('TOOL RANK: ' + tool.userCount);
+
+                    Tool.update({_id:tool._id}, {$set: {
+                        'userCount': tool.userCount - 1
+                    }}, function (err) {
+
+                    });
+
+                    return done(null, tool); // tool found, return that tool
+                } else {
+                    return done(null);// tool not found
+                }
+            });
+        });
+    });
 
     // =====================================
     // LOGIN ===============================

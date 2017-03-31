@@ -89,6 +89,7 @@
                     $.get( '/add-new-tool',parameters, function(data) {
 
                     });
+                    window.location.reload();
 
                     $("html").find(".add-new-tool-popup").removeClass("open");
                 }
@@ -111,7 +112,6 @@
             });
 
             $('.delete-tool-button').click(function() {
-                var toolRow = $(this).parent();
                 /*
                 var toolCount = parseInt(toolRow.find('.your-tool-user-count').text().replace(",", ""));
 
@@ -128,6 +128,17 @@
                         console.debug(this);
                     }
                 });*/
+                var toolRow = $(this).parent();
+                var toolName = $(this).parent().find(".your-tool-rank-name").text();
+                //TODO SEND TO THE API and ADD LOADING SPINNER
+
+                //AJAX
+                var parameters = { toolName: toolName};
+                $.get( '/delete-tool',parameters, function(data) {
+
+                });
+                window.location.reload();
+
                 toolRow.addClass('deleted');
                 setTimeout(function() {
                     toolRow.css("display", "none");
@@ -138,14 +149,6 @@
 </head>
 
 <body>
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1000967543264812";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
     <nav class="navbar-hc">
         <div class="navbar-brand-hc" href="#">
             <div class="navbar-separator"></div>
@@ -166,7 +169,7 @@
                 </ul>
             </div>
         <% }else{ %>
-            <a href="/auth/facebook" class="fb-login-button account-button"></a>
+            <a href="/auth/facebook" class="fb-login-button account-button">Login</a>
         <% } %>
         <div class="navbar-separator"></div>
         <div class="filters-container">
@@ -196,100 +199,10 @@
             </div>
         </div>
     </nav>
-    <div class="charts-table">
-        <%
-        if ( rankedTools ){
-        for(var i=0; i < Object.keys(rankedTools).length; i++) { %>
-            <div class="tool-row">
-                <div class="tool-col-main-content">
-                    <h1 class="tool-rank-num"><%= rankedTools[i].rank %></h1>
-                    <%
-                    if ( rankedTools[i].iconURL ){%>
-                        <img src="<%= rankedTools[i].iconURL %>" class="tool-icon">
-                    <%}%>
-                    <div class="tool-rank-text">
-                        <div class="tool-name-and-count">
-                            <h3 class="tool-name"><%= rankedTools[i].name %></h3>
-                            <div class="tool-user-count"><%= rankedTools[i].userCount %></div>
-                        </div>
-                        <%if ( rankedTools[i].languages ){%>
-                            <div class="tool-languages-container">
-                                <%for(var x=0; x < rankedTools[i].languages.length; x++) { %>
-                                    <div class="tool-language"> <%= rankedTools[i].languages[x] %> </div>
-                                <%}%>
-                            </div>
-                        <%}%>
-                    </div>
-                    <div class="tool-row-seperator"></div>
-                </div>
-            </div>
-        <%  }
-        }%>
-         <!-- <div class="tool-row">
-            <div class="tool-col-main-content">
-                <h1 class="tool-rank-num">1</h1>
-                <img src="static/fb_icon.png" class="tool-icon">
-                <div class="tool-rank-text">
-                    <div class="tool-name-and-count">
-                        <h3 class="tool-name">FacebookSDK</h3>
-                        <div class="tool-user-count">1,044</div>
-                    </div>
-                </div>
-                <div class="tool-row-seperator"></div>
-            </div>
-            <div class="tool-days-at-rank">2d</div>
-        </div>
-        <div class="tool-row">
-            <div class="tool-col-main-content">
-                <h1 class="tool-rank-num">1</h1>
-                <img src="static/fb_icon.png" class="tool-icon">
-                <div class="tool-rank-text">
-                    <div class="tool-name-and-count">
-                        <div class="tool-name">FacebookSDKasd<br> asdasdasdas<br>d asdasd</div>
-                        <div class="tool-user-count">1,044</div>
-                    </div>
-                    <div class="tool-languages-container">
-                        <div class="tool-language"> iOS </div>
-                        <div class="tool-language"> Android </div>
-                    </div>
-                </div>
-                <div class="tool-row-seperator"></div>
-            </div>
-            <div class="tool-weekly-user-increase-container">
-                <img src="static/uparrow.png" class="tool-weekly-arrow">
-                <div class="tool-weekly-text">23</div>
-            </div>
-        </div>
-        <div class="tool-row">
-            <div class="tool-col-main-content">
-                <h1 class="tool-rank-num">1</h1>
-                <img src="static/fb_icon.png" class="tool-icon">
-                <div class="tool-rank-text">
-                    <div class="tool-name-and-count">
-                        <div class="tool-name">FacebookSDKasdawdawdawdawdawdawdwadwadaawdwadawawdawdwada</div>
-                        <div class="tool-user-count">1,044</div>
-                    </div>
-                    <div class="tool-languages-container">
-                        <div class="tool-language"> iOS </div>
-                        <div class="tool-language"> Android </div>
-                    </div>
-                </div>
-                <div class="tool-row-seperator"></div>
-            </div>
-            <div class="dropdown pull-right tool-friends-circles-container" style="margin-right:0px;">
-                <div class="dropdown-toggle" data-toggle="dropdown">
-                    <img src="static/exprofilepic.png" class="tool-friends-circle">
-                    <img src="static/exprofilepic.png" class="tool-friends-circle">
-                    <!--<div class="tool-friends-circle-extra">+ 3</div>-->
-                    <!--<img src="exprofilepic.png" class="tool-friends-circle">
-                </div>
-                <ul class="dropdown-menu tool-friends-circles-dropdown">
-                    <li><a href="# ">Declan</a></li>
-                    <li><a href="# ">Declan 2</a></li>
-                </ul>
-            </div>
-        </div>-->
-    </div>
+
+    <% var data= rankedTools; %>
+    <% include partials/charts-table %>
+
     <div class="right-side-bar">
         <div class="add-new-tool-popup">
                 <div class="close-button"><img src="static/remove_tool.png"></div>
@@ -410,5 +323,7 @@
 
 </html>
 </body>
+
+
 
 </html>

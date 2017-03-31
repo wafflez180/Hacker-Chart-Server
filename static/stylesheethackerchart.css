@@ -466,9 +466,9 @@ body{
 
     /* 12% is the width of the nav bar HackerChart logo*/
     width: calc((100% - 10%) - 300px);
-    height: 100%;
 
     margin: auto;
+    margin-bottom: 25px;
 
     background-color: white;
     box-shadow: 0px 0px 2px rgba(0, 0, 0, .1);
